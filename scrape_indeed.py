@@ -9,7 +9,7 @@ indeed_html = requests.get('https://www.indeed.com/jobs?q=SQL&l=Remote&sort=date
 soup = BeautifulSoup(indeed_html, 'lxml')
 
 jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
-jobs = jobs_list.find_all('div', class_='slider_container')
+jobs = jobs_list.find_all('a', class_='tapItem', href=True)
 
 i = 0
 
@@ -38,6 +38,9 @@ for job in jobs:
     if job.find('span', class_='salary-snippet')is not None:
         salary_snippet = job.find('span', class_='salary-snippet').text
         print(salary_snippet)
+
+    link = job['href']
+    print(f'https://www.indeed.com'+ link)
 
     print('____________________________________')
     i = i+1
