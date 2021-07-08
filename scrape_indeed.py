@@ -13,42 +13,67 @@ def getpage(indeed_html):
 
     i = 0
 
+    job_title_rows = []
+    company_location_rows = []
+    company_name_rows = []
+    company_rating_rows = []
+    job_snippet_rows = []
+    posted_rows = []
+    salary_snippet_rows = []
+    link_rows = []
+
     for job in jobs:
-        job_title = job.find('span', class_=lambda x: x != 'label').text
-        print(job_title)
+#        job_title = job.find('span', class_=lambda x: x != 'label').text
+#        job_title_rows.append(job_title)
 
-        company_location = job.find('div', class_='companyLocation').text
-        print(company_location)
+#        company_location = job.find('div', class_='companyLocation').text
+#        company_location_rows.append(company_location)
 
-        company_name = job.find('span', class_='companyName').text
-        print(company_name)
+#        company_name = job.find('span', class_='companyName').text
+#        company_name_rows.append(company_name)
 
-        if job.find('span', class_='ratingNumber')is not None:
-            company_rating = job.find('span', class_='ratingNumber').text
-            print(company_rating)
+#        if job.find('span', class_='ratingNumber')is not None:
+#            company_rating = job.find('span', class_='ratingNumber').text
+#            company_rating_rows.append(company_rating)
 
-        if job.find('div', class_='job-snippet')is not None:
-            job_snippet = job.find('div', class_='job-snippet').text
-            print(job_snippet)
+#        if job.find('div', class_='job-snippet')is not None:
+#            job_snippet = job.find('div', class_='job-snippet').text
+#            job_snippet_rows.append(job_snippet)
 
-        if job.find('span', class_='date')is not None:
-            posted = job.find('span', class_='date').text
-            print(posted)
+#        if job.find('span', class_='date')is not None:
+#            posted = job.find('span', class_='date').text
+#            posted_rows.append(posted)
 
-        if job.find('span', class_='salary-snippet')is not None:
-            salary_snippet = job.find('span', class_='salary-snippet').text
-            print(salary_snippet)
+#        if job.find('span', class_='salary-snippet')is not None:
+#            salary_snippet = job.find('span', class_='salary-snippet').text
+#            salary_snippet_rows.append(salary_snippet)
 
-        link = job['href']
-        print(f'https://www.indeed.com'+ link)
+#        link = job['href']
+#        link_rows.append(f'https://www.indeed.com'+ link)
 
-        print('____________________________________')
         i+=1
 
     print(i)
     return i
 
-input = 3
+
+#    df = pd.DataFrame(list(zip(job_title_rows,\
+#                               company_location_rows,\
+#                               company_name_rows,\
+#                               company_rating_rows,\
+#                               job_snippet_rows,\
+#                               posted_rows,\
+#                               columns =['job_title',\
+#                                         'company_location',\
+#                                         'company_name',\
+#                                         'company_rating',\
+#                                         'job_snippet',\
+#                                         'posted_rows',\
+###
+#    df.to_csv(f'C:/Users/Michael/Desktop/filename.csv', sep=',', header=True)
+
+
+input = 1
 counter = 0
 total_scrape_count = 0
 
@@ -59,6 +84,3 @@ while counter < input:
     total_scrape_count = total_scrape_count + result
 
 print(total_scrape_count)
-
-#job_title_new = job.find('h2', class_ = 'jobTitle jobTitle-color-purple jobTitle-newJob')
-#job_title_old = job.find('h2', class_ = 'jobTitle jobTitle-color-purple jobTitle')
