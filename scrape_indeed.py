@@ -70,8 +70,6 @@ def getpage(indeed_html):
         i+=1
 
     print(i)
-    for jobx in job_title_rows:
-        print(jobx)
 
     df = pd.DataFrame(list(zip(job_title_rows,\
                                company_name_rows,\
@@ -90,22 +88,50 @@ def getpage(indeed_html):
                                          'posted_rows',
                                          'link_rows'])
 
-    print(df)
     return df
 
-input = 3
-counter = 0
-total_scrape_count = 0
+
+
+def create_scrape_link(key_words,location,sort,page):
+
+    url_base = 'https://www.indeed.com/jobs?'
+    q_base = 'q='
+    l_base = 'l='
+    sort_base = 'sort='
+    start_base = 'start='
+
+    q = (q_base+key_words.replace(' ', '+'))
+    l = (l_base+location.replace(' ','+'))
+    sort = (sort_base+sort)
+    start = (start_base+str(page))
+
+    link_to_scrape = (url_base+q+'&'+l+'&'+sort+'&'+start)
+    return link_to_scrape
+    print(link_to_scrape)
+
+#Search Input Data
+
+key_words  = input("Enter the key word you are searching for: ")
+location = input("Enter the location of your dream job: ")
+sort = input("Enter the sort mechanism for the results (date/relevance): ")
+pages = int(input("Enter the number of pages you would like to scrape: " ))
+
+page_counter = 0
+
 scrape_data = pd.DataFrame()
 
-while counter < input:
-    indeed_html = requests.get(f'https://www.indeed.com/jobs?q=SQL&l=Remote&sort=date&start='+str(counter)+'&vjk=b7fcb744c2617103').text
-    counter+=1
+while page_counter < pages:
+
+    scrape_link = create_scrape_link(key_words,location,sort,page_counter)
+    print(scrape_link)
+
+    indeed_html = requests.get(scrape_link).text
+
     data_page = getpage(indeed_html)
-    print(data_page)
+
     scrape_data = scrape_data.append(data_page)
+
+    page_counter+=1
     print(scrape_data)
 
-#    total_scrape_count = total_scrape_count + result
 scrape_data.to_csv(f'C:/Users/Michael/Desktop/filename.csv', sep=',', header=True, mode='w+')
-print(total_scrape_count)
