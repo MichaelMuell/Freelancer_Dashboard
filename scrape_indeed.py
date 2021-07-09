@@ -23,62 +23,89 @@ def getpage(indeed_html):
     link_rows = []
 
     for job in jobs:
-        job_title = job.find('span', class_=lambda x: x != 'label').text
-        job_title_rows.append(job_title)
+        if job.find('span', class_=lambda x: x != 'label')is not None:
+            job_title = job.find('span', class_=lambda x: x != 'label').text
+        else: job_title = 'empty'
 
-        company_location = job.find('div', class_='companyLocation').text
-        company_location_rows.append(company_location)
+        if job.find('div', class_='companyLocation')is not None:
+            company_location = job.find('div', class_='companyLocation').text
+        else: company_location = 'empty'
 
-        company_name = job.find('span', class_='companyName').text
-        company_name_rows.append(company_name)
+        if job.find('span', class_='companyName')is not None:
+            company_name = job.find('span', class_='companyName').text
+        else: company_name = 'empty'
 
         if job.find('span', class_='ratingNumber')is not None:
             company_rating = job.find('span', class_='ratingNumber').text
-            company_rating_rows.append(company_rating)
+        else: company_rating = 'empty'
 
         if job.find('div', class_='job-snippet')is not None:
             job_snippet = job.find('div', class_='job-snippet').text
-            job_snippet_rows.append(job_snippet)
+        else:
+            job_snippet = 'empty'
 
         if job.find('span', class_='date')is not None:
             posted = job.find('span', class_='date').text
-            posted_rows.append(posted)
+        else:
+            posted = 'empty'
 
         if job.find('span', class_='salary-snippet')is not None:
             salary_snippet = job.find('span', class_='salary-snippet').text
-            salary_snippet_rows.append(salary_snippet)
+        else:
+            salary_snippet = 'empty'
 
-        link = job['href']
+        if job['href'] is not None:
+            link = job['href']
+        else: link = 'empty'
+
+        job_title_rows.append(job_title)
+        company_location_rows.append(company_location)
+        company_name_rows.append(company_name)
+        company_rating_rows.append(company_rating)
+        job_snippet_rows.append(job_snippet)
+        salary_snippet_rows.append(salary_snippet)
+        posted_rows.append(posted)
         link_rows.append(f'https://www.indeed.com'+ link)
 
         i+=1
 
     print(i)
+    for jobx in job_title_rows:
+        print(jobx)
+
     df = pd.DataFrame(list(zip(job_title_rows,\
-                               company_location_rows,\
                                company_name_rows,\
+                               company_location_rows,\
                                company_rating_rows,\
                                job_snippet_rows,\
-                               posted_rows)), \
+                               salary_snippet_rows,\
+                               posted_rows,\
+                               link_rows)), \
                                columns =['job_title',\
-                                         'company_location',\
                                          'company_name',\
+                                         'company_location',\
                                          'company_rating',\
                                          'job_snippet',\
-                                         'posted_rows'])
+                                         'salary_snippet',\
+                                         'posted_rows',
+                                         'link_rows'])
 
-    df.to_csv(f'C:/Users/Michael/Desktop/filename.csv', sep=',', header=True, mode='w+')
+    print(df)
+    return df
 
-    return i
-
-input = 1
+input = 3
 counter = 0
 total_scrape_count = 0
+scrape_data = pd.DataFrame()
 
 while counter < input:
     indeed_html = requests.get(f'https://www.indeed.com/jobs?q=SQL&l=Remote&sort=date&start='+str(counter)+'&vjk=b7fcb744c2617103').text
     counter+=1
-    result = getpage(indeed_html)
-    total_scrape_count = total_scrape_count + result
+    data_page = getpage(indeed_html)
+    print(data_page)
+    scrape_data = scrape_data.append(data_page)
+    print(scrape_data)
 
+#    total_scrape_count = total_scrape_count + result
+scrape_data.to_csv(f'C:/Users/Michael/Desktop/filename.csv', sep=',', header=True, mode='w+')
 print(total_scrape_count)
