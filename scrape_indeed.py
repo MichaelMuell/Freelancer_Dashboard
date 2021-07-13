@@ -13,14 +13,7 @@ def getpage_indeed(indeed_html):
 
     i = 0
 
-    job_title_rows = []
-    company_location_rows = []
-    company_name_rows = []
-    company_rating_rows = []
-    job_snippet_rows = []
-    posted_rows = []
-    salary_snippet_rows = []
-    link_rows = []
+    job_list = []
 
     for job in jobs:
         if job.find('span', class_=lambda x: x != 'label')is not None:
@@ -55,42 +48,27 @@ def getpage_indeed(indeed_html):
             salary_snippet = 'empty'
 
         if job['href'] is not None:
-            link = job['href']
+            link = 'https://www.indeed.com'+job['href']
         else: link = 'empty'
 
-        job_title_rows.append(job_title)
-        company_location_rows.append(company_location)
-        company_name_rows.append(company_name)
-        company_rating_rows.append(company_rating)
-        job_snippet_rows.append(job_snippet)
-        salary_snippet_rows.append(salary_snippet)
-        posted_rows.append(posted)
-        link_rows.append(f'https://www.indeed.com'+ link)
+        job_item = {
+        'job_title': job_title,
+        'company_location': company_location,
+        'company_name': company_name,
+        'company_rating': company_rating,
+        'job_snippet': job_snippet,
+        'posted': posted,
+        'salary_snippet': salary_snippet,
+        'link': link
+        }
+        job_list.append(job_item)
 
         i+=1
 
     print(i)
 
-    df = pd.DataFrame(list(zip(job_title_rows,\
-                               company_name_rows,\
-                               company_location_rows,\
-                               company_rating_rows,\
-                               job_snippet_rows,\
-                               salary_snippet_rows,\
-                               posted_rows,\
-                               link_rows)), \
-                               columns =['job_title',\
-                                         'company_name',\
-                                         'company_location',\
-                                         'company_rating',\
-                                         'job_snippet',\
-                                         'salary_snippet',\
-                                         'posted_rows',
-                                         'link_rows'])
-
+    df = pd.DataFrame(job_list)
     return df
-
-
 
 def create_scrape_link_indeed(key_words,location,sort,page):
 
