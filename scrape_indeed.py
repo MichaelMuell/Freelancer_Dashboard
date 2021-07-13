@@ -5,7 +5,7 @@ import pandas as pd
 import time
 import html5lib
 
-def getpage(indeed_html):
+def getpage_indeed(indeed_html):
     soup = BeautifulSoup(indeed_html, 'lxml')
 
     jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
@@ -92,7 +92,7 @@ def getpage(indeed_html):
 
 
 
-def create_scrape_link(key_words,location,sort,page):
+def create_scrape_link_indeed(key_words,location,sort,page):
 
     url_base = 'https://www.indeed.com/jobs?'
     q_base = 'q='
@@ -108,30 +108,3 @@ def create_scrape_link(key_words,location,sort,page):
     link_to_scrape = (url_base+q+'&'+l+'&'+sort+'&'+start)
     return link_to_scrape
     print(link_to_scrape)
-
-#Search Input Data
-
-key_words  = input("Enter the key word you are searching for: ")
-location = input("Enter the location of your dream job: ")
-sort = input("Enter the sort mechanism for the results (date/relevance): ")
-pages = int(input("Enter the number of pages you would like to scrape: " ))
-
-page_counter = 0
-
-scrape_data = pd.DataFrame()
-
-while page_counter < pages:
-
-    scrape_link = create_scrape_link(key_words,location,sort,page_counter)
-    print(scrape_link)
-
-    indeed_html = requests.get(scrape_link).text
-
-    data_page = getpage(indeed_html)
-
-    scrape_data = scrape_data.append(data_page)
-
-    page_counter+=1
-    print(scrape_data)
-
-scrape_data.to_csv(f'C:/Users/Michael/Desktop/filename.csv', sep=',', header=True, mode='w+')
