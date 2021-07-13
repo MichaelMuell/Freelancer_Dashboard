@@ -5,7 +5,7 @@ import pandas as pd
 import time
 import html5lib
 
-def getpage_indeed(indeed_html):
+def getpage(indeed_html):
     soup = BeautifulSoup(indeed_html, 'lxml')
 
     jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
@@ -70,7 +70,7 @@ def getpage_indeed(indeed_html):
     df = pd.DataFrame(job_list)
     return df
 
-def create_scrape_link_indeed(key_words,location,sort,page):
+def create_scrape_link(key_words,location,sort,page):
 
     url_base = 'https://www.indeed.com/jobs?'
     q_base = 'q='
