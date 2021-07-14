@@ -6,34 +6,33 @@ import time
 import html5lib
 from selenium import webdriver
 
-def get_data(inp_key_words, inp_location, inp_sort, inp_pages):
+def get_data(inp_key_words, inp_sort, inp_pages):
 
-    key_words, location, sort, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_pages)
+    key_words, sort, pages = translate_input(inp_key_words,inp_sort,inp_pages)
 
     page_counter = 1
     data_gulp = pd.DataFrame()
 
     while page_counter <= pages:
 
-        scrape_link = create_scrape_link(key_words,location,sort,page_counter)
+        scrape_link = create_scrape_link(key_words,sort,page_counter)
         print(scrape_link)
         page_data_gulp = get_page_data(scrape_link)
         data_gulp = data_gulp.append(page_data_gulp)
 
         page_counter+=1
-        print(data_gulp)
 
     return data_gulp
 
-def translate_input(key_words, location, sort, pages):
+def translate_input(key_words, sort, pages):
 
     if sort == 'date':
-        sort = 'date_desc'
-    else: 'relevance_desc'
+        sort = 'DATE_DESC'
+    else: 'RELEVANCE_DESC'
 
-    return key_words,location,sort,pages
+    return key_words,sort,pages
 
-def create_scrape_link(key_words,location,sort,pages):
+def create_scrape_link(key_words,sort,pages):
 
     url_base = 'https://www.gulp.de/gulp2/g/projekte?'
     q_base = 'query='
@@ -44,7 +43,7 @@ def create_scrape_link(key_words,location,sort,pages):
     sort = (sort_base+sort)
     start = (start_base+str(pages))
 
-    link_to_scrape = (url_base+q+'&'+sort+'&'+start)
+    link_to_scrape = (url_base+q+'&'+start+'&'+sort)
 
     return link_to_scrape
 
@@ -85,7 +84,7 @@ def get_page_data(gulp_html):
 
         job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
 
-        link =  'https://www.gulp.de/' + job.find('a')['href']
+        link =  'https://www.gulp.de' + job.find('a')['href']
 
         job_item = {
                 'platform': 'gulp',

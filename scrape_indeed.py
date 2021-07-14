@@ -5,27 +5,26 @@ import pandas as pd
 import time
 import html5lib
 
-def get_data(inp_key_words,inp_location,inp_sort,inp_pages):
+def get_data(inp_key_words,inp_location,inp_sort,inp_job_type,inp_pages):
 
-    key_words, location, sort, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_pages)
+    key_words, location, sort, job_type, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_job_type,inp_pages)
 
     data_indeed = pd.DataFrame()
     page_counter = 0
 
     while page_counter < pages:
 
-        scrape_link = create_scrape_link(key_words,location,sort,page_counter)
+        scrape_link = create_scrape_link(key_words,location,sort,job_type,page_counter)
         page_data_indeed = getpage(scrape_link)
         data_indeed = data_indeed.append(page_data_indeed)
 
         page_counter+=1
 
-    print(data_indeed)
     return data_indeed
 
-def translate_input(key_words,location,sort,pages):
+def translate_input(key_words,location,sort,job_type,pages):
 
-    return key_words,location,sort,pages
+    return key_words,location,sort,job_type,pages
 
 def getpage(scrape_link):
 
@@ -95,20 +94,22 @@ def getpage(scrape_link):
     df = pd.DataFrame(job_list)
     return df
 
-def create_scrape_link(key_words,location,sort,page):
+def create_scrape_link(key_words,location,sort,job_type,page):
 
     url_base = 'https://www.indeed.com/jobs?'
     q_base = 'q='
     l_base = 'l='
     sort_base = 'sort='
     start_base = 'start='
+    jt_base= 'jt='
 
     q = (q_base+key_words.replace(' ', '+'))
     l = (l_base+location.replace(' ','+'))
     sort = (sort_base+sort)
     start = (start_base+str(page))
+    jt = (jt_base+job_type)
 
-    link_to_scrape = (url_base+q+'&'+l+'&'+sort+'&'+start)
+    link_to_scrape = (url_base+q+'&'+l+'&'+jt+'&'+sort+'&'+start)
     print(link_to_scrape)
     return link_to_scrape
 
