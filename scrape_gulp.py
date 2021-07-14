@@ -6,7 +6,50 @@ import time
 import html5lib
 from selenium import webdriver
 
-def getpage(gulp_html):
+def get_data(inp_key_words, inp_location, inp_sort, inp_pages):
+
+    key_words, location, sort, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_pages)
+
+    page_counter = 1
+    data_gulp = pd.DataFrame()
+
+    while page_counter <= pages:
+
+        scrape_link = create_scrape_link(key_words,location,sort,page_counter)
+        print(scrape_link)
+        page_data_gulp = get_page_data(scrape_link)
+        data_gulp = data_gulp.append(page_data_gulp)
+
+        page_counter+=1
+        print(data_gulp)
+
+    return data_gulp
+
+def translate_input(key_words, location, sort, pages):
+
+    if sort == 'date':
+        sort = 'date_desc'
+    else: 'relevance_desc'
+
+    return key_words,location,sort,pages
+
+def create_scrape_link(key_words,location,sort,pages):
+
+    url_base = 'https://www.gulp.de/gulp2/g/projekte?'
+    q_base = 'query='
+    sort_base = 'order='
+    start_base = 'page='
+
+    q = (q_base+key_words.replace(' ', '%20'))
+    sort = (sort_base+sort)
+    start = (start_base+str(pages))
+
+    link_to_scrape = (url_base+q+'&'+sort+'&'+start)
+
+    return link_to_scrape
+
+
+def get_page_data(gulp_html):
 
     scrape_link = gulp_html
 
@@ -45,6 +88,7 @@ def getpage(gulp_html):
         link =  'https://www.gulp.de/' + job.find('a')['href']
 
         job_item = {
+                'platform': 'gulp',
                 'job_title': job_title,
                 'start_date': start_date,
                 'location': location,
@@ -60,28 +104,4 @@ def getpage(gulp_html):
 
     return(df)
 
-def create_scrape_link(key_words,sort,page):
-
-    url_base = 'https://www.gulp.de/gulp2/g/projekte?'
-    q_base = 'query='
-    sort_base = 'order='
-    start_base = 'page='
-
-    q = (q_base+key_words.replace(' ', '%20'))
-
-    if sort == 'date':
-        sort = 'date_desc'
-    else: 'relevance_desc'
-
-    sort = (sort_base+sort)
-
-    start = (start_base+str(page))
-
-    link_to_scrape = (url_base+q+'&'+sort+'&'+start)
-
-    return link_to_scrape
-
-#for jobs in jobs_list:
-#    print(jobs.prettify())
-
-#print(soup.prettify())
+#get_data('SQL','Remote','date',2)

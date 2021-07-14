@@ -5,7 +5,31 @@ import pandas as pd
 import time
 import html5lib
 
-def getpage(indeed_html):
+def get_data(inp_key_words,inp_location,inp_sort,inp_pages):
+
+    key_words, location, sort, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_pages)
+
+    data_indeed = pd.DataFrame()
+    page_counter = 0
+
+    while page_counter < pages:
+
+        scrape_link = create_scrape_link(key_words,location,sort,page_counter)
+        page_data_indeed = getpage(scrape_link)
+        data_indeed = data_indeed.append(page_data_indeed)
+
+        page_counter+=1
+
+    print(data_indeed)
+    return data_indeed
+
+def translate_input(key_words,location,sort,pages):
+
+    return key_words,location,sort,pages
+
+def getpage(scrape_link):
+
+    indeed_html = requests.get(scrape_link).text
     soup = BeautifulSoup(indeed_html, 'lxml')
 
     jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
@@ -52,6 +76,7 @@ def getpage(indeed_html):
         else: link = 'empty'
 
         job_item = {
+        'platform': 'indeed',
         'job_title': job_title,
         'company_location': company_location,
         'company_name': company_name,
@@ -84,5 +109,7 @@ def create_scrape_link(key_words,location,sort,page):
     start = (start_base+str(page))
 
     link_to_scrape = (url_base+q+'&'+l+'&'+sort+'&'+start)
-    return link_to_scrape
     print(link_to_scrape)
+    return link_to_scrape
+
+#get_data('SQL','Remote','date',2)
