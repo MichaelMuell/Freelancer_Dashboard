@@ -33,12 +33,11 @@ def get_page_data(link):
 
     for job in jobs:
 
-        job_title =  job.find('h3',class_='action-icons-overlap').text.lstrip()
-        job_title.lstrip()
+        job_title =  job.find('h3',class_='action-icons-overlap').text.strip()
         link = 'https://www.freelance.de'+job.find('a')['href']
 
         if job.find('ul',class_='tag-group margin-top-sm') is not None:
-            job_skills =  job.find('ul',class_='tag-group margin-top-sm').text
+            job_skills =  job.find('ul',class_='tag-group margin-top-sm').text.strip()
         else: job_skills = 'empty'
 
         if job.find('i',class_='far fa-calendar-star fa-fw') is not None:
@@ -65,6 +64,7 @@ def get_page_data(link):
             'location': location,
             'remote': remote,
             'last_update': last_update,
+            'link': link
             }
 
         job_list.append(job_item)

@@ -40,7 +40,7 @@ def getpage(scrape_link):
 
     for job in jobs:
         if job.find('span', class_=lambda x: x != 'label')is not None:
-            job_title = job.find('span', class_=lambda x: x != 'label').text
+            job_title = job.find('span', class_=lambda x: x != 'label').text.strip()
         else: job_title = 'empty'
 
         if job.find('div', class_='companyLocation')is not None:
@@ -56,7 +56,7 @@ def getpage(scrape_link):
         else: company_rating = 'empty'
 
         if job.find('div', class_='job-snippet')is not None:
-            job_snippet = job.find('div', class_='job-snippet').text
+            job_snippet = job.find('div', class_='job-snippet').text.strip()
         else:
             job_snippet = 'empty'
 

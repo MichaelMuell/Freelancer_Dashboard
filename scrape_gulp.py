@@ -76,7 +76,7 @@ def get_page_data(gulp_html):
             location =  job.find('b').text
         else: location = 'empty'
 
-        job_info =  job.find('p', class_='description').text
+        job_info =  " ".join(job.find('p', class_='description').text.split())
 
         if job.find('div', class_='skills flex ng-star-inserted') is not None:
             job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
