@@ -52,16 +52,33 @@ for query in queries:
     print(data_indeed)
     print(data_freelance)
 
-path = r'G:/My Drive/freelancer_jobs_data.xlsx'
-writer = pd.ExcelWriter(path,engine='xlsxwriter')
+path = r'G:/My Drive/freelancer_jobs.xlsx'
 
-if 'g' in platforms:
+workbook = pxl.load_workbook(path)
+
+try:
+    del workbook['freelance']
+except Exception:
+    pass
+
+try:
+    del workbook['gulp']
+except Exception:
+    pass
+
+try:
+    del workbook['indeed']
+except Exception:
+    pass
+
+workbook.save(path)
+
+with pd.ExcelWriter(path,engine='openpyxl',if_sheet_exist='replace') as writer:
+
+    writer.book = pxl.load_workbook(path)
+
     data_gulp.to_excel(writer, sheet_name='gulp', header=True,index=False)
-
-if 'i' in platforms:
     data_indeed.to_excel(writer, sheet_name='indeed', header=True,index=False)
-
-if 'f' in platforms:
     data_freelance.to_excel(writer, sheet_name='freelance', header=True,index=False)
 
 writer.save()
