@@ -4,6 +4,7 @@ import scrape_indeed
 import requests
 import scrape_gulp
 import openpyxl as pxl
+import scrape_freelance
 
 #daily_search = input("Do you want to start the daily search queries or use custom query? daily/custom ")
 #print(daily_search)
@@ -15,10 +16,10 @@ import openpyxl as pxl
 
 queries = []
 
-query1 = ['gi','Data Analytics','Remote','date','contract', 1]
-query2 = ['gi','SQL','Remote','date','contract',1]
-query3 = ['gi','Power BI', 'Remote', 'date','contract',1]
-query4 = ['gi','Business Intelligence', 'Remote', 'date','contract',1]
+query1 = ['gif','Data Analytics','Remote','date','contract', 1]
+query2 = ['gif','SQL','Remote','date','contract',1]
+query3 = ['gif','Power BI', 'Remote', 'date','contract',1]
+query4 = ['gif','Business Intelligence', 'Remote', 'date','contract',1]
 
 queries.append(query1)
 queries.append(query2)
@@ -27,6 +28,7 @@ queries.append(query4)
 
 data_indeed = pd.DataFrame()
 data_gulp = pd.DataFrame()
+data_freelance = pd.DataFrame()
 
 for query in queries:
 
@@ -37,16 +39,20 @@ for query in queries:
     job_type = query[4]
     pages = query[5]
 
-    if 'gi' in platforms:
+    if 'g' in platforms:
         data_gulp = data_gulp.append(scrape_gulp.get_data(key_words,sort,pages))
 
-    if 'gi' in platforms:
+    if 'i' in platforms:
         data_indeed = data_indeed.append(scrape_indeed.get_data(key_words,location,sort,job_type,pages))
+
+    if 'f' in platforms:
+        data_freelance = data_freelance.append(scrape_freelance.get_data(key_words,location,sort,pages))
 
     print(data_gulp)
     print(data_indeed)
+    print(data_freelance)
 
-path = r'G:/My Drive/freelancer_jobs.xlsx'
+path = r'G:/My Drive/freelancer_jobs_data.xlsx'
 writer = pd.ExcelWriter(path,engine='xlsxwriter')
 
 if 'g' in platforms:
@@ -54,6 +60,9 @@ if 'g' in platforms:
 
 if 'i' in platforms:
     data_indeed.to_excel(writer, sheet_name='indeed', header=True,index=False)
+
+if 'f' in platforms:
+    data_freelance.to_excel(writer, sheet_name='freelance', header=True,index=False)
 
 writer.save()
 
