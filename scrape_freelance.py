@@ -22,6 +22,12 @@ def get_data(inp_key_words,inp_location,inp_sort,inp_pages):
 
     return data_freelance
 
+#def test_get_page()
+#    html = "andapiuhaiual"
+#test file
+#    result = get_page_data(html)
+
+
 def get_page_data(link):
 
     freelance_html = requests.get(link).text
