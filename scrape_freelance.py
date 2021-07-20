@@ -91,13 +91,13 @@ def create_scrape_link(key_words,location,sort,page):
 
     url_base = 'https://www.freelance.de/search/project.php?'
     freetext_base = '__search_freetext='
-    location_base = '__search_city='
+#    location_base = '__search_city='
     sort_base = '__search_sort_by='
     start_base = '_offset='
     jt_base= 'jt='
 
     freetext =  freetext_base+key_words.replace(' ','+')
-    location = location_base+location
+#    location = location_base+location
     sort = sort_base + sort
     start = start_base + str((page - 1) * 20)
 

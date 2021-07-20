@@ -20,11 +20,13 @@ query1 = ['gif','Data Analytics','Remote','date','contract', 1]
 query2 = ['gif','SQL','Remote','date','contract',1]
 query3 = ['gif','Power BI', 'Remote', 'date','contract',1]
 query4 = ['gif','Business Intelligence', 'Remote', 'date','contract',1]
+query5 = ['gif','DWH BI', 'Remote', 'date','contract',1]
 
 queries.append(query1)
 queries.append(query2)
 queries.append(query3)
 queries.append(query4)
+queries.append(query5)
 
 data_indeed = pd.DataFrame()
 data_gulp = pd.DataFrame()
