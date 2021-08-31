@@ -14,6 +14,8 @@ import scrape_freelance
     #    sort = input("Enter the sort mechanism for the results (date/relevance): ")
     #    pages = int(input("Enter the number of pages you would like to scrape: " ))
 
+#test
+
 queries = []
 
 query1 = ['gif','Data Analytics','Remote','date','contract', 1]
