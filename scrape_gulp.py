@@ -58,9 +58,8 @@ def get_page_data(gulp_html):
     soup = BeautifulSoup(driver.page_source, 'lxml')
 
     driver.quit()
-
     list_container = soup.find('ul',class_='ng-star-inserted')
-    jobs_list = list_container.find_all('div',class_='result-container')
+    jobs_list = list_container.find_all('div',class_='content-panel')
 
     job_list = []
 

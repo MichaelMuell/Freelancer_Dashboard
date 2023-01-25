@@ -4,6 +4,7 @@ import lxml
 import pandas as pd
 import time
 import html5lib
+from selenium import webdriver
 
 def get_data(inp_key_words,inp_location,inp_sort,inp_job_type,inp_pages):
 
@@ -28,19 +29,25 @@ def translate_input(key_words,location,sort,job_type,pages):
 
 def getpage(scrape_link):
 
-    indeed_html = requests.get(scrape_link).text
-    soup = BeautifulSoup(indeed_html, 'lxml')
+    driver = webdriver.Chrome()
+
+    driver.get(scrape_link)
+    soup = BeautifulSoup(driver.page_source, 'lxml')
+
+ #   indeed_html = requests.get(scrape_link).text
+ #   soup = BeautifulSoup(indeed_html, 'lxml')
 
     jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
-    jobs = jobs_list.find_all('a', class_='tapItem', href=True)
+    jobs = jobs_list.find_all('div', class_='job_seen_beacon')
 
     i = 0
 
     job_list = []
 
     for job in jobs:
-        if job.find('span', class_=lambda x: x != 'label')is not None:
-            job_title = job.find('span', class_=lambda x: x != 'label').text.strip()
+ 
+        if job.find('span') is not None:
+            job_title = job.find('span').text
         else: job_title = 'empty'
 
         if job.find('div', class_='companyLocation')is not None:
@@ -68,11 +75,10 @@ def getpage(scrape_link):
         if job.find('span', class_='salary-snippet')is not None:
             salary_snippet = job.find('span', class_='salary-snippet').text
         else:
-            salary_snippet = 'empty'
+            salary_snippet = 'empty'    
 
-        if job['href'] is not None:
-            link = 'https://www.indeed.com'+job['href']
-        else: link = 'empty'
+            link = scrape_link
+
 
         job_item = {
         'platform': 'indeed',
