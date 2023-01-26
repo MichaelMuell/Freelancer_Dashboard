@@ -2,7 +2,7 @@ import pandas as pd
 import scrape_indeed
 import scrape_gulp
 import openpyxl as pxl
-import scrape_freelance
+from scrape_freelance import freelance
 
 class crawler():
     def __init__(self,queries):
@@ -11,14 +11,13 @@ class crawler():
     def start(self):
         data_indeed = pd.DataFrame()
         data_gulp = pd.DataFrame()
-        data_freelance = pd.DataFrame()
 
         for query in self.queries.values():
         
             print(query)
-            data_freelance = freelance.getdata(query)
 
-            platforms,key_words,location,sort,job_type,pages = query
+            f = freelance(query)
+            f.get_data()
 
             if 'g' in platforms:
                 data_gulp = data_gulp.append(scrape_gulp.get_data(key_words,sort,pages))
@@ -26,14 +25,10 @@ class crawler():
             if 'i' in platforms:
                 data_indeed = data_indeed.append(scrape_indeed.get_data(key_words,location,sort,job_type,pages))
 
-            if 'f' in platforms:
-                data_freelance = data_freelance.append(scrape_freelance.get_data(key_words,location,sort,pages))
-
             print(data_gulp)
             print(data_indeed)
-            print(data_freelance)
 
-        frames = [data_gulp,data_indeed,data_freelance]
+        frames = [data_gulp,data_indeed,f.job_list]
         output = pd.concat(frames)
 
         path = r'G:/My Drive/freelancer_jobs.xlsx'
