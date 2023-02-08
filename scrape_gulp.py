@@ -6,100 +6,96 @@ import time
 import html5lib
 from selenium import webdriver
 
-def get_data(inp_key_words, inp_sort, inp_pages):
+class gulp():
+    def __init__(self,query):
+        self.platforms = query[0]
+        self.key_words = query[1]
+        self.location = query[2]
+        self.sort = query[3]
+        self.job_type = query[4]
+        self.pages = query[5]
+        self.job_list = pd.DataFrame()
 
-    key_words, sort, pages = translate_input(inp_key_words,inp_sort,inp_pages)
+    def get_data(self):
 
-    page_counter = 1
-    data_gulp = pd.DataFrame()
+        if self.sort == 'date':
+            self.sort = 'DATE_DESC'
+        else: 'RELEVANCE_DESC'
 
-    while page_counter <= pages:
+        page_counter = 1
+        data_gulp = pd.DataFrame()
 
-        scrape_link = create_scrape_link(key_words,sort,page_counter)
-        print(scrape_link)
-        page_data_gulp = get_page_data(scrape_link)
-        data_gulp = data_gulp.append(page_data_gulp)
+        while page_counter <= self.pages:
 
-        page_counter+=1
+            self.create_scrape_link(page_counter)
+            self.get_page_data()
 
-    return data_gulp
-
-def translate_input(key_words, sort, pages):
-
-    if sort == 'date':
-        sort = 'DATE_DESC'
-    else: 'RELEVANCE_DESC'
-
-    return key_words,sort,pages
-
-def create_scrape_link(key_words,sort,pages):
-
-    url_base = 'https://www.gulp.de/gulp2/g/projekte?'
-    q_base = 'query='
-    sort_base = 'order='
-    start_base = 'page='
-
-    q = (q_base+key_words.replace(' ', '%20'))
-    sort = (sort_base+sort)
-    start = (start_base+str(pages))
-
-    link_to_scrape = (url_base+q+'&'+start+'&'+sort)
-
-    return link_to_scrape
+            page_counter+=1
 
 
-def get_page_data(gulp_html):
+    def create_scrape_link(self,page_counter):
 
-    scrape_link = gulp_html
+        url_base = 'https://www.gulp.de/gulp2/g/projekte?'
+        q_base = 'query='
+        sort_base = 'order='
+        start_base = 'page='
 
-    driver = webdriver.Chrome()
+        q = (q_base+self.key_words.replace(' ', '%20'))
+        sort = (sort_base+self.sort)
+        start = (start_base+str(self.pages))
 
-    driver.get(scrape_link)
-    soup = BeautifulSoup(driver.page_source, 'lxml')
+        self.scrape_link = (url_base+q+'&'+start+'&'+sort)
 
-    driver.quit()
-    list_container = soup.find('ul',class_='ng-star-inserted')
-    jobs_list = list_container.find_all('div',class_='content-panel')
 
-    job_list = []
+    def get_page_data(self):
 
-    for job in jobs_list:
+        driver = webdriver.Chrome()
 
-        job_title = job.find('a').text
+        driver.get(self.scrape_link)
+        soup = BeautifulSoup(driver.page_source, 'lxml')
 
-        if job.find('div',class_='flex start-date ng-star-inserted') is not None:
-            start_date =  job.find('div',class_='flex start-date ng-star-inserted').text
-        else: start_date = 'empty'
+        driver.quit()
+        list_container = soup.find('ul',class_='ng-star-inserted')
+        jobs_list = list_container.find_all('div',class_='content-panel')
 
-        if job.find('b') is not None:
-            location =  job.find('b').text
-        else: location = 'empty'
+        job_list = []
 
-        job_info =  " ".join(job.find('p', class_='description').text.split())
+        for job in jobs_list:
 
-        if job.find('div', class_='skills flex ng-star-inserted') is not None:
-            job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
-        else: job_skills = 'empty'
+            job_title = job.find('a').text
 
-        job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
+            if job.find('div',class_='flex start-date ng-star-inserted') is not None:
+                start_date =  job.find('div',class_='flex start-date ng-star-inserted').text
+            else: start_date = 'empty'
 
-        link =  'https://www.gulp.de' + job.find('a')['href']
+            if job.find('b') is not None:
+                location =  job.find('b').text
+            else: location = 'empty'
 
-        job_item = {
-                'platform': 'gulp',
-                'job_title': job_title,
-                'start_date': start_date,
-                'location': location,
-                'job_info': job_info,
-                'job_skills': job_skills,
-                'job_posted': job_posted,
-                'link': link
-        }
+            job_info =  " ".join(job.find('p', class_='description').text.split())
 
-        job_list.append(job_item)
+            if job.find('div', class_='skills flex ng-star-inserted') is not None:
+                job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
+            else: job_skills = 'empty'
 
-    df =  pd.DataFrame(job_list)
+            job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
 
-    return(df)
+            link =  'https://www.gulp.de' + job.find('a')['href']
 
-#get_data('SQL','Remote','date',2)
+            job_item = {
+                    'platform': 'gulp',
+                    'job_title': job_title,
+                    'start_date': start_date,
+                    'location': location,
+                    'job_info': job_info,
+                    'job_skills': job_skills,
+                    'job_posted': job_posted,
+                    'link': link
+            }
+
+            job_list.append(job_item)
+
+        df =  pd.DataFrame(job_list)
+
+        self.job_list = self.job_list.append(df)
+
