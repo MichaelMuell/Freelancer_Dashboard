@@ -16,19 +16,17 @@ class freelance():
 
     def get_data(self):
         
-        if 'f' in self.platforms:
+        if self.sort == 'date':
+            self.sort = '2'
+        else: self.sort == '1'
 
-            if self.sort == 'date':
-                self.sort = '2'
-            else: self.sort == '1'
+        page_counter = 1
 
-            page_counter = 1
+        while page_counter <= self.pages:
+            self.create_scrape_link(page_counter)
+            self.get_page_data(self.scrape_link)
 
-            while page_counter <= self.pages:
-                self.create_scrape_link(page_counter)
-                self.get_page_data(self.scrape_link)
-
-                page_counter+=1
+            page_counter+=1
 
 
     def get_page_data(self,link):

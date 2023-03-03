@@ -10,9 +10,8 @@ class crawler():
         self.queries = queries
 
     def start(self):
-        data_indeed = pd.DataFrame()
-        data_gulp = pd.DataFrame()
-        data_freelance = pd.DataFrame()
+
+        data = pd.DataFrame()
 
         for query in self.queries.values():
         
@@ -22,22 +21,17 @@ class crawler():
             g = gulp(query)
             g.get_data()
 
-            data_freelance = data_freelance.append(f.job_list)
-            data_freelance.drop_duplicates(subset=['job_title'], inplace=True, keep='first')
-
-            data_gulp = data_gulp.append(g.job_list)
-            data_gulp.drop_duplicates(subset=['job_title'], inplace=True, keep='first')
-
+            data = data.append(f.job_list)
+            data = data.append(g.job_list)
+           
 #            if 'i' in platforms:
 #                data_indeed = data_indeed.append(scrape_indeed.get_data(key_words,location,sort,job_type,pages))
 
-
-        frames = [data_gulp,data_indeed,data_freelance]
-        output = pd.concat(frames)
+        data.drop_duplicates(subset=['job_title'], inplace=True, keep='first')
 
         path = r'G:/My Drive/Freelancer Dashboard/freelancer_jobs.xlsx'
 
-        output.to_excel(path)
+        data.to_excel(path)
 
 
 queries = {
