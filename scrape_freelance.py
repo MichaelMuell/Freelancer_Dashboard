@@ -76,9 +76,7 @@ class freelance():
 
             job_list.append(job_item)
 
-        df =  pd.DataFrame(job_list)
-
-        self.job_list = self.job_list.append(df)
+        self.job_list = pd.concat([self.job_list,pd.DataFrame(job_list)])
 
     def translate_input(self):
 

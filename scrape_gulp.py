@@ -5,6 +5,7 @@ import pandas as pd
 import time
 import html5lib
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class gulp():
     def __init__(self,query):
@@ -49,53 +50,58 @@ class gulp():
 
     def get_page_data(self):
 
-        driver = webdriver.Chrome()
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        chrome_options.add_experimental_option("prefs", prefs)
+        driver = webdriver.Chrome(chrome_options=chrome_options)
 
         driver.get(self.scrape_link)
+        driver.implicitly_wait(10)
         soup = BeautifulSoup(driver.page_source, 'lxml')
 
         driver.quit()
-        list_container = soup.find('ul',class_='ng-star-inserted')
-        jobs_list = list_container.find_all('div',class_='content-panel')
+        
+        if soup.find('ul',class_='ng-star-inserted') is not None:
 
-        job_list = []
+            list_container = soup.find('ul',class_='ng-star-inserted')
+            jobs_list = list_container.find_all('div',class_='content-panel')
 
-        for job in jobs_list:
+            job_list = []
 
-            job_title = job.find('a').text
+            for job in jobs_list:
 
-            if job.find('div',class_='flex start-date ng-star-inserted') is not None:
-                start_date =  job.find('div',class_='flex start-date ng-star-inserted').text
-            else: start_date = 'empty'
+                job_title = job.find('a').text
 
-            if job.find('b') is not None:
-                location =  job.find('b').text
-            else: location = 'empty'
+                if job.find('div',class_='flex start-date ng-star-inserted') is not None:
+                    start_date =  job.find('div',class_='flex start-date ng-star-inserted').text
+                else: start_date = 'empty'
 
-            job_info =  " ".join(job.find('p', class_='description').text.split())
+                if job.find('b') is not None:
+                    location =  job.find('b').text
+                else: location = 'empty'
 
-            if job.find('div', class_='skills flex ng-star-inserted') is not None:
-                job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
-            else: job_skills = 'empty'
+                job_info =  " ".join(job.find('p', class_='description').text.split())
 
-            job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
+                if job.find('div', class_='skills flex ng-star-inserted') is not None:
+                    job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
+                else: job_skills = 'empty'
 
-            link =  'https://www.gulp.de' + job.find('a')['href']
+                job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
 
-            job_item = {
-                    'platform': 'gulp',
-                    'job_title': job_title,
-                    'start_date': start_date,
-                    'location': location,
-                    'job_info': job_info,
-                    'job_skills': job_skills,
-                    'job_posted': job_posted,
-                    'link': link
-            }
+                link =  'https://www.gulp.de' + job.find('a')['href']
 
-            job_list.append(job_item)
+                job_item = {
+                        'platform': 'gulp',
+                        'job_title': job_title,
+                        'start_date': start_date,
+                        'location': location,
+                        'job_info': job_info,
+                        'job_skills': job_skills,
+                        'job_posted': job_posted,
+                        'link': link
+                }
 
-        df =  pd.DataFrame(job_list)
-
-        self.job_list = self.job_list.append(df)
+                job_list.append(job_item)
+            
+            self.job_list = pd.concat([self.job_list,pd.DataFrame(job_list)])
 
