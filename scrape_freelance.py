@@ -87,17 +87,17 @@ class freelance():
         return key_words,location,sort,pages
 
     def create_scrape_link(self,page_counter):
-
-        url_base = 'https://www.freelance.de/search/project.php?'
-        freetext_base = '__search_freetext='
+        
+        url_base = 'https://www.freelance.de/search/project.php?__search_sort_by=&__search_project_age=0&__search_profile_availability=0&__search_profile_update=0&__search_profile_apply_watchlist=0&__search_project_start_date=&__search_profile_ac=&__search_additional_filter=&__search=search&search_extended=0&__search_freetext=keyword&__search_city=&seal=e5f72fd9196318f738d5c8525638f71d6c773b2a&__search_city_location_id=&__search_city_country=&__search_city_country_extended=&search_id=d9ea1c890acb48599120d53a913b6cdf&search_simple=suchen&__search_country=&__search_hour_rate_modifier=&__search_hour_rate=&__search_experience_modifier=&__search_experience=&__search_additional_filter=&__search_project_age_remote=0&__search_project_start_date_remote=&__search_sort_by_remote=1'
+    #    freetext_base = '__search_freetext='
     #    location_base = '__search_city='
-        sort_base = '__search_sort_by='
-        start_base = '_offset='
-        jt_base= 'jt='
+    #    sort_base = '__search_sort_by='
+    #    start_base = '_offset='
+    #    jt_base= 'jt='
 
-        freetext =  freetext_base+self.key_words.replace(' ','+')
+    #    freetext =  freetext_base+self.key_words.replace(' ','+')
     #    location = location_base+location
-        sort = sort_base + self.sort
-        start = start_base + str((self.pages - 1) * 20)
+    #    sort = sort_base + self.sort
+    #    start = start_base + str((self.pages - 1) * 20)
 
-        self.scrape_link = (url_base+sort+'&'+freetext+'&'+self.location+'&'+start)
+        self.scrape_link = (url_base.replace('keyword',self.key_words))
