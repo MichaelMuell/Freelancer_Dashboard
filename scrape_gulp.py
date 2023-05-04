@@ -1,11 +1,10 @@
-from bs4 import BeautifulSoup
-import requests
-import lxml
 import pandas as pd
 import time
-import html5lib
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+import time 
 
 class gulp():
     def __init__(self,query):
@@ -16,92 +15,55 @@ class gulp():
         self.job_type = query[4]
         self.pages = query[5]
         self.job_list = pd.DataFrame()
-
+        
     def get_data(self):
-
-        if self.sort == 'date':
-            self.sort = 'DATE_DESC'
-        else: 'RELEVANCE_DESC'
-
-        page_counter = 1
-        data_gulp = pd.DataFrame()
-
-        while page_counter <= self.pages:
-
-            self.create_scrape_link(page_counter)
-            self.get_page_data()
-
-            page_counter+=1
-
-
-    def create_scrape_link(self,page_counter):
-
-        url_base = 'https://www.gulp.de/gulp2/g/projekte?'
-        q_base = 'query='
-        sort_base = 'order='
-        start_base = 'page='
-
-        q = (q_base+self.key_words.replace(' ', '%20'))
-        sort = (sort_base+self.sort)
-        start = (start_base+str(self.pages))
-
-        self.scrape_link = (url_base+q+'&'+start+'&'+sort)
-
-
-    def get_page_data(self):
 
         chrome_options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
         chrome_options.add_experimental_option("prefs", prefs)
         driver = webdriver.Chrome(chrome_options=chrome_options)
-
-        driver.get(self.scrape_link)
-        driver.implicitly_wait(10)
-        soup = BeautifulSoup(driver.page_source, 'lxml')
-
-        driver.quit()
         
-        if soup.find('ul',class_='ng-star-inserted') is not None:
+        keyword_link = self.key_words.replace(' ', '%20')
 
-            list_container = soup.find('ul',class_='ng-star-inserted')
-            jobs_list = list_container.find_all('div',class_='content-panel')
+        driver.get("https://www.gulp.de/gulp2/g/projekte?query="+keyword_link+"&page=1&order=DATE_DESC")
+        driver.implicitly_wait(5)
 
-            job_list = []
+        project_list = driver.find_element(By.XPATH,"//ul[contains(@class, 'ng-star-inserted')]")
 
-            for job in jobs_list:
+        projects = project_list.find_elements(By.XPATH,"//div[contains(@class, 'content-panel margin-3')]")
 
-                job_title = job.find('a').text
+        job_list = []
 
-                if job.find('div',class_='flex start-date ng-star-inserted') is not None:
-                    start_date =  job.find('div',class_='flex start-date ng-star-inserted').text
-                else: start_date = 'empty'
-
-                if job.find('b') is not None:
-                    location =  job.find('b').text
-                else: location = 'empty'
-
-                job_info =  " ".join(job.find('p', class_='description').text.split())
-
-                if job.find('div', class_='skills flex ng-star-inserted') is not None:
-                    job_skills =  job.find('div', class_='skills flex ng-star-inserted').text
-                else: job_skills = 'empty'
-
-                job_posted = job.find('span', class_='has-tip margin-top-1 time-ago').text
-
-                link =  'https://www.gulp.de' + job.find('a')['href']
-
-                job_item = {
-                        'platform': 'gulp',
-                        'job_title': job_title,
-                        'start_date': start_date,
-                        'location': location,
-                        'job_info': job_info,
-                        'job_skills': job_skills,
-                        'job_posted': job_posted,
-                        'link': link
-                }
-
-                job_list.append(job_item)
+        for project in projects:
             
-            self.job_list = pd.concat([self.job_list,pd.DataFrame(job_list)])
+            project_title = project.find_element(By.TAG_NAME,"a").text
+            details = project.find_element(By.CSS_SELECTOR,"ul.fa-ul").text.splitlines()
+
+            for detail in details:
+                if detail.find('Location') != -1: 
+                    project_location = detail
+                elif detail.find('Start') != -1: 
+                    project_start = detail 
+            
+            project_link =  project.find_element(By.TAG_NAME,"a").get_attribute('href')
+           
+#            project_skills = project.find_element(By.CSS_SELECTOR,"span.label tertiary ng-star-inserted").text
+
+            project_info = project.find_element(By.CSS_SELECTOR,"p.description").text
+
+            project_posted = project.find_element(By.TAG_NAME,"small").text 
+
+            job_item = {
+                                'platform': 'gulp',
+                                'job_title': project_title,
+                                'start_date': project_start,
+                                'location': project_location,
+                                'job_info': project_info,
+                                'job_skills': "",
+                                'job_posted': project_posted,
+                                'link': project_link
+                        }
+            job_list.append(job_item)
+
+        self.job_list = pd.concat([self.job_list,pd.DataFrame(job_list)])
 

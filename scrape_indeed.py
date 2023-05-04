@@ -1,122 +1,65 @@
-from bs4 import BeautifulSoup
-import requests
-import lxml
 import pandas as pd
 import time
-import html5lib
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+import time 
 
-def get_data(inp_key_words,inp_location,inp_sort,inp_job_type,inp_pages):
+class indeed():
+    def __init__(self,query):
+        self.platforms = query[0]
+        self.key_words = query[1]
+        self.location = query[2]
+        self.sort = query[3]
+        self.job_type = query[4]
+        self.pages = query[5]
+        self.job_list = pd.DataFrame()
+        
+    def get_data(self):
 
-    key_words, location, sort, job_type, pages = translate_input(inp_key_words,inp_location,inp_sort,inp_job_type,inp_pages)
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        chrome_options.add_experimental_option("prefs", prefs)
+        driver = webdriver.Chrome(chrome_options=chrome_options)
 
-    data_indeed = pd.DataFrame()
-    page_counter = 0
+        driver.get("https://de.indeed.com/Jobs?q="+self.key_words+"&sc=0bf%3Aexrec(),kf%3Aattr(DSQF7)jt(parttime)%3B&fromage=7")
+        driver.implicitly_wait(5)
 
-    while page_counter < pages:
+#        search_box = driver.find_element(By.XPATH,"/html/body/main/div/div[1]/div/div/div[2]/div/div/div/div[1]/form/div/div[1]/div/div[1]/div/div[2]/input")
+#
+#        driver.execute_script("arguments[0].click();", search_box)
+#        search_box.send_keys(Keys.CONTROL + 'a')
+#        search_box.send_keys(Keys.BACKSPACE)
+#        time.sleep(2)
+#        search_box.send_keys(self.key_words)
+#        search_box.send_keys(Keys.ENTER)
 
-        scrape_link = create_scrape_link(key_words,location,sort,job_type,page_counter)
-        page_data_indeed = getpage(scrape_link)
-        data_indeed = data_indeed.append(page_data_indeed)
+#        time.sleep(2)
 
-        page_counter+=1
+        projects = driver.find_elements(By.CLASS_NAME,"job_seen_beacon")
 
-    return data_indeed
+        job_list = []
 
-def translate_input(key_words,location,sort,job_type,pages):
+        for project in projects:
+            
+            project_parts = project.text.splitlines()
 
-    return key_words,location,sort,job_type,pages
-
-def getpage(scrape_link):
-
-    driver = webdriver.Chrome()
-
-    driver.get(scrape_link)
-    soup = BeautifulSoup(driver.page_source, 'lxml')
-
- #   indeed_html = requests.get(scrape_link).text
- #   soup = BeautifulSoup(indeed_html, 'lxml')
-
-    jobs_list = soup.find('div', id = 'mosaic-provider-jobcards')
-    jobs = jobs_list.find_all('div', class_='job_seen_beacon')
-
-    i = 0
-
-    job_list = []
-
-    for job in jobs:
- 
-        if job.find('span') is not None:
-            job_title = job.find('span').text
-        else: job_title = 'empty'
-
-        if job.find('div', class_='companyLocation')is not None:
-            company_location = job.find('div', class_='companyLocation').text
-        else: company_location = 'empty'
-
-        if job.find('span', class_='companyName')is not None:
-            company_name = job.find('span', class_='companyName').text
-        else: company_name = 'empty'
-
-        if job.find('span', class_='ratingNumber')is not None:
-            company_rating = job.find('span', class_='ratingNumber').text
-        else: company_rating = 'empty'
-
-        if job.find('div', class_='job-snippet')is not None:
-            job_snippet = job.find('div', class_='job-snippet').text.strip()
-        else:
-            job_snippet = 'empty'
-
-        if job.find('span', class_='date')is not None:
-            posted = job.find('span', class_='date').text
-        else:
-            posted = 'empty'
-
-        if job.find('span', class_='salary-snippet')is not None:
-            salary_snippet = job.find('span', class_='salary-snippet').text
-        else:
-            salary_snippet = 'empty'    
-
-            link = scrape_link
+#            project_number = project_parts[2].split('-')
+            project_link =  project.find_element(By.TAG_NAME,"a").get_attribute('href')
 
 
-        job_item = {
-        'platform': 'indeed',
-        'job_title': job_title,
-        'company_location': company_location,
-        'company_name': company_name,
-        'company_rating': company_rating,
-        'job_snippet': job_snippet,
-        'posted': posted,
-        'salary_snippet': salary_snippet,
-        'link': link
-        }
-        job_list.append(job_item)
+            job_item = {
+                                'platform': 'indeed',
+                                'job_title': project_parts[0],
+                                'start_date': '',
+                                'location': '',
+                                'job_info': '' ,
+                                'job_skills': '',
+                                'job_posted': '',
+                                'link': project_link
+                        }
+            job_list.append(job_item)
 
-        i+=1
+        self.job_list = pd.concat([self.job_list,pd.DataFrame(job_list)])
 
-    print(i)
-
-    df = pd.DataFrame(job_list)
-    return df
-
-def create_scrape_link(key_words,location,sort,job_type,page):
-
-    url_base = 'https://www.indeed.com/jobs?'
-    q_base = 'q='
-    l_base = 'l='
-    sort_base = 'sort='
-    start_base = 'start='
-    jt_base= 'jt='
-
-    q = (q_base+key_words.replace(' ', '+'))
-    l = (l_base+location.replace(' ','+'))
-    sort = (sort_base+sort)
-    start = (start_base+str(page))
-    jt = (jt_base+job_type)
-
-    link_to_scrape = (url_base+q+'&'+l+'&'+jt+'&'+sort+'&'+start)
-    print(link_to_scrape)
-    return link_to_scrape
-
-#get_data('SQL','Remote','date',2)
