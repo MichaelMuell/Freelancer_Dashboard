@@ -26,10 +26,10 @@ class crawler():
             t = etengo(query)
             t.get_data()
 
-            i = indeed(query)
-            i.get_data()
+#            i = indeed(query)
+#            i.get_data()
 
-            data = pd.concat([data,f.job_list,g.job_list,t.job_list,i.job_list])
+            data = pd.concat([data,f.job_list,g.job_list,t.job_list])
            
         data.drop_duplicates(subset=['job_title'], inplace=True, keep='first')
 
@@ -43,12 +43,20 @@ queries = {
            2:['','SQL','Remote','date','contract',1],
            3:['','Power BI', 'Remote', 'date','contract',1],
            4:['','Business Intelligence', 'Remote', 'date','contract',1],
-           5:['','DWH BI', 'Remote', 'date','contract',1],
+           5:['','Business Analyst', 'Remote', 'date','contract',1],
            6:['','Analytics Engineer', 'Remote', 'date','contract',1],
-           7:['','Data Warehouse', 'Remote', 'date','contract',1],
-           8:['','Data Engineer', 'Remote', 'date','contract',1],
-           9:['','Data', 'Remote', 'date','contract',1],
-           10:['','Azure', 'Remote', 'date','contract',1]
+           7:['','Analyst', 'Remote', 'date','contract',1],
+           8:['','Solution Architect', 'Remote', 'date','contract',1],
+           9:['','Requirements Engineer', 'Remote', 'date','contract',1],
+           10:['','BI Analyst', 'Remote', 'date','contract',1],
+           11:['','Fabric', 'Remote', 'date','contract',1],
+           12:['','Analytics Consultant', 'Remote', 'date','contract',1],
+           13:['','BI Developer', 'Remote', 'date','contract',1],
+           14:['','Azure', 'Remote', 'date','contract',1],
+           15:['','SQL Server', 'Remote', 'date','contract',1],
+           16:['','Data Warehouse', 'Remote', 'date','contract',1],
+           17:['','DWH', 'Remote', 'date','contract',1],
+           18:['','Data Engineer', 'Remote', 'date','contract',1]
         }
 
 print(queries)

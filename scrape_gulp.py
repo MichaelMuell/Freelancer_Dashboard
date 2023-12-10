@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time 
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 class gulp():
     def __init__(self,query):
@@ -21,8 +23,8 @@ class gulp():
         chrome_options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
         chrome_options.add_experimental_option("prefs", prefs)
-        driver = webdriver.Chrome(chrome_options=chrome_options)
-        
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+
         keyword_link = self.key_words.replace(' ', '%20')
 
         driver.get("https://www.gulp.de/gulp2/g/projekte?query="+keyword_link+"&page=1&order=DATE_DESC")
@@ -39,6 +41,9 @@ class gulp():
             project_title = project.find_element(By.TAG_NAME,"a").text
             details = project.find_element(By.CSS_SELECTOR,"ul.fa-ul").text.splitlines()
 
+            project_location = ""  # Initialize to empty string
+            project_start = ""
+
             for detail in details:
                 if detail.find('Location') != -1: 
                     project_location = detail
@@ -53,6 +58,12 @@ class gulp():
 
             project_posted = project.find_element(By.TAG_NAME,"small").text 
 
+            if 'hour' in project_posted.lower():
+                project_posted = 'hour'
+            
+            if 'minute' in project_posted.lower():
+                project_posted = 'hour'
+
             job_item = {
                                 'platform': 'gulp',
                                 'job_title': project_title,
@@ -60,7 +71,7 @@ class gulp():
                                 'location': project_location,
                                 'job_info': project_info,
                                 'job_skills': "",
-                                'job_posted': project_posted,
+                                'last_update': project_posted,
                                 'link': project_link
                         }
             job_list.append(job_item)

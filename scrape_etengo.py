@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import time 
+from webdriver_manager.chrome import ChromeDriverManager
 
 class etengo():
     def __init__(self,query):
@@ -21,7 +22,8 @@ class etengo():
         chrome_options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
         chrome_options.add_experimental_option("prefs", prefs)
-        driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+
 
         driver.get("https://www.etengo.de/en/it-project-search/")
         driver.implicitly_wait(5)

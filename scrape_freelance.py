@@ -3,6 +3,7 @@ import requests
 import lxml
 import pandas as pd
 import time
+from datetime import datetime
 
 class freelance(): 
     def __init__(self,query):
@@ -62,6 +63,15 @@ class freelance():
             if job.find('i',class_='far fa-history fa-fw') is not None:
                 last_update = job.find('i',class_='far fa-history fa-fw').next_sibling
             else: last_update = 'empty'
+
+            if last_update != 'empty':
+                try:
+                    date_time_obj = datetime.strptime(last_update.strip(), '%d.%m.%Y %H:%M')
+                    last_update = date_time_obj.strftime('%Y-%m-%d')
+                except ValueError:
+                    # Handle the case where date conversion fails
+                    print(f"Could not convert {last_update} to date. Keeping original value.")
+
 
             job_item = {
                 'platform': 'freelance',
